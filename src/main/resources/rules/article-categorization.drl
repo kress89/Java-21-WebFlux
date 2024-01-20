@@ -1,0 +1,21 @@
+import com.pinehood.articlebot.model.Article;
+import com.pinehood.articlebot.model.CategorizedArticle;
+
+global java.util.Map articleCategoryMap;
+
+rule "Categorize as Sports"
+when
+    $article : Article(content contains "sport" || content contains "nogomet" || content contains "kosarka" || content contains "tenis")
+then
+    CategorizedArticle categorizedArticle = new CategorizedArticle($article, "Sport");
+    insert(categorizedArticle);
+end
+
+rule "Categorize as Politics"
+when
+    $article : Article(content contains "politika" || content contains "izbori" || content contains "vlada")
+then
+    CategorizedArticle categorizedArticle = new CategorizedArticle($article, "Politika");
+    insert(categorizedArticle);
+end
+

@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  redis:
+    container_name: pinehood-redis
+    image: redis:latest
+    restart: unless-stopped
+    command: redis-server --save 100 10 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    ports:
+      - 6379:6379
+    networks:
+      - desktop_default
+      - redis-net
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --raw -a ${REDIS_PASSWORD} incr ping"]
+      interval: 15s
+      timeout: 15s
+      retries: 10
+    volumes:
+      - ./_data:/data:rw
+
+  redis-exporter:
+    container_name: pinehood-redis-exporter
+    image: oliver006/redis_exporter:latest
+    restart: unless-stopped
+    command: -redis.addr redis://pinehood-redis:6379 -redis.password ${REDIS_PASSWORD}
+    ports:
+      - 9121:9121
+    networks:
+      - desktop_default
+      - redis-net
+    depends_on:
+      - redis
+
+networks:
+  desktop_default:
+    external: true
+  redis-net:
+    external: false
+    driver: bridge
